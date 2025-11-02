@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎂 Doğum Günün Kutlu Olsun!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: linear-gradient(180deg, #ffecd2 0%, #fcb69f 100%);
+    color: #333;
+    transition: background 1.2s ease, color 1.2s ease;
+  }
+
+  body.night {
+    background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+    color: #f1f1f1;
+  }
+
+  h1 {
+    font-size: 3em;
+    margin: 0.3em;
+    text-align: center;
+  }
+
+  p {
+    font-size: 1.2em;
+    max-width: 600px;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .buttons {
+    margin-top: 1.5em;
+    display: flex;
+    gap: 1em;
+  }
+
+  button {
+    padding: 0.8em 1.5em;
+    font-size: 1em;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    background: #ff7f50;
+    color: white;
+    transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 6px 15px rgba(255, 127, 80, 0.4);
+  }
+
+  button:hover {
+    background: #ff9966;
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(255, 127, 80, 0.6);
+  }
+
+  body.night button {
+    background: #4458dc;
+    box-shadow: 0 6px 15px rgba(68, 88, 220, 0.4);
+  }
+
+  body.night button:hover {
+    background: #854fee;
+    box-shadow: 0 10px 20px rgba(133, 79, 238, 0.6);
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Yıldız efekti */
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 3s infinite ease-in-out;
+    opacity: 0.8;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+</style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <div id="stars"></div>
+
+  <h1>🎉 Doğum Günün Kutlu Olsun! 🎂</h1>
+  <p>Bugün senin günün... Her anın huzur, sevgi ve mutlulukla dolsun.  
+  Kalbindeki tüm güzellikler gerçek olsun. 💖</p>
+
+  <div class="buttons">
+    <button id="toggleTheme">🌗 Tema Değiştir</button>
+    <button id="playMusic">🎵 Müzik Çal</button>
+  </div>
+
+  <!-- Gerçek çalışan mp3 -->
+  <audio id="bgMusic" src="https://docs.google.com/uc?export=download&id=1VmppJhSNSHde0j86rL58QZ0qVBN0FCuI"></audio>
+
+<script>
+  // === Tema Değiştir ===
+  const toggleBtn = document.getElementById('toggleTheme');
+  toggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('night');
+  });
+
+  // === Müzik ===
+  const playBtn = document.getElementById('playMusic');
+  const music = document.getElementById('bgMusic');
+  let playing = false;
+
+  playBtn.addEventListener('click', () => {
+    if (!playing) {
+      music.volume = 0.6;
+      music.play();
+      playBtn.textContent = "⏸️ Müziği Durdur";
+      playing = true;
+    } else {
+      music.pause();
+      playBtn.textContent = "🎵 Müzik Çal";
+      playing = false;
+    }
+  });
+
+  // === Konfeti Efekti ===
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  let confettis = [];
+  const colors = ['#FF5F6D', '#FFC371', '#00C9FF', '#92FE9D', '#f6d365', '#fda085'];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function createConfetti() {
+    for (let i = 0; i < 15; i++) {
+      confettis.push({
+        x: Math.random() * canvas.width,
+        y: -10,
+        size: Math.random() * 8 + 5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        speedY: Math.random() * 4 + 2,
+        speedX: (Math.random() - 0.5) * 2,
+        rotation: Math.random() * 2 * Math.PI
+      });
+    }
+  }
+
+  function drawConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confettis.forEach((c, i) => {
+      ctx.fillStyle = c.color;
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.rotate(c.rotation);
+      ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size);
+      ctx.restore();
+
+      c.y += c.speedY;
+      c.x += c.speedX;
+      c.rotation += 0.02;
+      if (c.y > canvas.height) confettis.splice(i, 1);
+    });
+  }
+
+
+  function animate() {
+    requestAnimationFrame(animate);
+    drawConfetti();
+  }
+
+  animate();
+  setInterval(createConfetti, 250);
+
+  // === Yıldız Efekti ===
+  const starsContainer = document.getElementById('stars');
+  for (let i = 0; i < 100; i++) {
+    const star = document.createElement('div');
+    star.classList.add('star');
+    star.style.left = Math.random() * 100 + 'vw';
+    star.style.top = Math.random() * 100 + 'vh';
+    star.style.animationDelay = (Math.random() * 3) + 's';
+    star.style.opacity = Math.random();
+    starsContainer.appendChild(star);
+  }
+</script>
+</body>
+</html>
